@@ -12,8 +12,8 @@
 <meta property="og:title" content="Hexo">
 <meta property="og:url" content="http://yoursite.com/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:locale" content="en_US">
-<meta property="article:author" content="John Doe">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="ztyh">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
@@ -46,7 +46,7 @@
 			<img src="https://pic1.zhimg.com/80/11550cab525efadc2fcb0282b0e24568_1440w.png" class="js-avatar">
 		</a>
 		<hgroup>
-		  <h1 class="header-author"><a href="/">John Doe</a></h1>
+		  <h1 class="header-author"><a href="/">ztyh</a></h1>
 		</hgroup>
 		
 
@@ -98,7 +98,7 @@
 				<img src="https://pic1.zhimg.com/80/11550cab525efadc2fcb0282b0e24568_1440w.png" class="js-avatar">
 			</div>
 			<hgroup>
-			  <h1 class="header-author js-header-author">John Doe</h1>
+			  <h1 class="header-author js-header-author">ztyh</h1>
 			</hgroup>
 			
 			
@@ -141,6 +141,105 @@
           </div>
           <div id="js-content" class="content-ll">
             
+  
+    <article id="post-SpringBoot自动配置" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/06/14/SpringBoot%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE/">SpringBoot自动配置</a>
+    </h1>
+  
+
+        
+        <a href="/2020/06/14/SpringBoot%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE/" class="archive-article-date">
+  	<time datetime="2020-06-14T13:47:51.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-14</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="SpringBoot自动配置"><a href="#SpringBoot自动配置" class="headerlink" title="SpringBoot自动配置"></a>SpringBoot自动配置</h1><h2 id="SpringBootApplication"><a href="#SpringBootApplication" class="headerlink" title="@SpringBootApplication"></a>@SpringBootApplication</h2><h3 id="SpringBootConfiguration"><a href="#SpringBootConfiguration" class="headerlink" title="@SpringBootConfiguration"></a>@SpringBootConfiguration</h3><h4 id="Configuration"><a href="#Configuration" class="headerlink" title="@Configuration"></a>@Configuration</h4><p>@Configuration：</p>
+<ul>
+<li>该类是配置类（等同于xml文件）</li>
+<li>加了@Configuration注解，会自动将该类纳入Spring容器（实际上是@Configuration包含的@Component将该类纳入Spring容器）</li>
+</ul>
+<h3 id="EnableAutoConfiguration"><a href="#EnableAutoConfiguration" class="headerlink" title="@EnableAutoConfiguration"></a>@EnableAutoConfiguration</h3><p>该注解使SpringBoot实现自动配置</p>
+<h4 id="AutoConfigurationPackage"><a href="#AutoConfigurationPackage" class="headerlink" title="@AutoConfigurationPackage"></a>@AutoConfigurationPackage</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinitions</span><span class="params">(AnnotationMetadata metadata, BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line">            AutoConfigurationPackages.register(registry, (String[])(<span class="keyword">new</span> AutoConfigurationPackages.PackageImports(metadata)).getPackageNames().toArray(<span class="keyword">new</span> String[<span class="number">0</span>]));</span><br><span class="line">       </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将主配置类（<code>@SpringBootApplication</code>）所在包及其子包里边的组件扫描到Spring容器中</p>
+<h4 id="Import-AutoConfigurationImportSelector-class"><a href="#Import-AutoConfigurationImportSelector-class" class="headerlink" title="@Import({AutoConfigurationImportSelector.class})"></a>@Import({AutoConfigurationImportSelector.class})</h4><ul>
+<li>Spring启动的时候会扫描所有jar路径下的<code>META-INF/spring.factories</code>，将其文件包装成Properties对象</li>
+<li>从Properties对象获取到key值为<code>EnableAutoConfiguration</code>的数据，然后添加到容器里边</li>
+</ul>
+<p>在<code>application.properties</code>配置文件中增加<code>debug=true</code>，就可以知道开启了哪些自动装配：</p>
+<ul>
+<li>Negative matches：没有开启的自动装配</li>
+<li>Positive matches：开启的自动装配</li>
+</ul>
+<p>@Import({AutoConfigurationImportSelector.class})扫描所有具有<code>META-INF/spring.factories</code>的jar包（<code>spring-boot-autoconfigure-xxxx.jar</code>就有<code>spring.factories</code>文件）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&#96;&#96;&#96;java</span><br><span class="line">@ConditionalOnBean：当容器里有指定的bean的条件下。</span><br><span class="line"></span><br><span class="line">@ConditionalOnMissingBean：当容器里不存在指定bean的条件下。</span><br><span class="line"></span><br><span class="line">@ConditionalOnClass：当类路径下有指定类的条件下。</span><br><span class="line"></span><br><span class="line">@ConditionalOnMissingClass：当类路径下不存在指定类的条件下。</span><br><span class="line"></span><br><span class="line">@ConditionalOnProperty：指定的属性是否有指定的值，比如@ConditionalOnProperties(prefix&#x3D;”xxx.xxx”, value&#x3D;”enable”, matchIfMissing&#x3D;true)，代表当xxx.xxx为enable时条件的布尔值为true，如果没有设置的情况下也为true。</span><br></pre></td></tr></table></figure>
+
+<p><strong>@ConfigurationProperties</strong>：从properties文件中绑定属性到对应的bean上</p>
+<p><strong>@EnableConfigurationProperties</strong>：负责将绑定了属性的bean纳入到Spring容器中</p>
+<p>小结：在全局配置的属性，如server.port等，通过<code>@ConfigurationProperties</code>注解，绑定到对应的<code>xxxProperties</code>配置实体类上，封装为一个bean，然后在通过<code>@EnableConfigurationProperties</code>将该bean注入到Spring容器中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SpringBoot启动时，通过@EnableAutoConfiguration扫描所有META-INF&#x2F;spring.factories的自动配置类，并加载，这些配置类格式为xxxAutoConfiguration，实际上是JavaConfig形式的Spring容器配置类，自动配置类通过xxxProperties配置文件取得全局配置文件的配置属性。</span><br><span class="line">而xxxProperties配置文件通过@ConfigurationProperties注解与全局配置文件中的属性进行绑定。</span><br></pre></td></tr></table></figure>
+
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">SpringBoot</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/06/14/SpringBoot%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
   
     <article id="post-Git的基本使用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
@@ -363,7 +462,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2020 John Doe
+    		&copy; 2020 ztyh
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -440,6 +539,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
             <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
           </label>
           <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">SpringBoot</a>
+              </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">git</a>
